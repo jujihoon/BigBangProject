@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration><!-- DB설정(Connection) -->
+
+	<typeAliases><!-- vo객체의 별칭을 모아서 관리 -->
+		<typeAlias type="big.model.UserBean" alias="user" /><!-- User -->
+		<typeAlias type="big.model.RoomBean" alias="room" />
+		<typeAlias type="big.model.BoardBean" alias="bbs" /><!-- Board -->
+		<typeAlias type="big.model.ReplyBean" alias="reply" /> <!-- 댓글 -->
+		<typeAlias type="big.model.InfoBean" alias="info" /> <!-- 방정보 -->
+		<typeAlias type="big.model.RoomdateBean" alias="rdate" /> <!-- 방정보 -->
+		<typeAlias type="big.model.RoominfoBean" alias="rinfo" /> <!-- 방정보 -->
+		<typeAlias type="big.model.RoomoptionBean" alias="option" /> <!-- 방정보 -->
+		<typeAlias type="big.model.ReservationBean" alias="reservation" /> <!-- 예약정보 -->
+	</typeAliases>
+	<!-- DB연동 -->
+	<environments default="development">
+		<environment id="development">
+			<transactionManager type="JDBC" />
+			<dataSource type="POOLED">
+
+				<property name="driver" value="oracle.jdbc.driver.OracleDriver" />
+				<property name="url" value="jdbc:oracle:thin:@211.63.89.218:1521:orcl2" />
+				<property name="username" value="CH" />
+				<property name="password" value="1234" />
+			</dataSource>
+			<!-- Connection conn=ds.getConnection(); -->
+		</environment>
+	</environments>
+	<mappers>
+		<mapper resource="big/dao/board-mapper.xml" />
+	</mappers>
+</configuration>
+
+
+
+
+
+

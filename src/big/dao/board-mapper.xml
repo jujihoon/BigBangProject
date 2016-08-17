@@ -1,0 +1,452 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="big.model.bigBean">
+
+	<insert id="joinDao" parameterType="user">
+		INSERT INTO SUSER
+		VALUES(#{userno},#{name},#{password},#{gender},#{phone},SYSDATE,#{power},#{birth},#{email})
+	</insert>
+	
+	<select id="IdSearch" parameterType="HashMap" resultType="String">
+		SELECT EMAIL
+		FROM SUSER
+		WHERE NAME = '${name}' AND PHONE='${tel}' AND BIRTH = '${birth}' 
+	</select>
+	
+	<select id="selectSeq" resultType="Integer">
+		SELECT SUSER_SEQ.NEXTVAL FROM
+		DUAL
+	</select>
+
+	<select id="selectIdCheck" parameterType="java.util.HashMap"
+		resultType="user">
+		SELECT *
+		FROM SUSER
+		WHERE EMAIL=#{email} and
+		password=#{cp}
+	</select>
+	<select id="selectInfo" parameterType="Integer" resultType="user">
+		SELECT USERNO,NAME,EMAIL,PASSWORD,GENDER,PHONE,REGDATE,POWER,BIRTH
+		FROM SUSER
+		WHERE USERNO = #{VALUE}
+	</select>
+	<select id="selectId" parameterType="String" resultType="String">
+		SELECT
+		EMAIL
+		FROM SUSER
+		WHERE EMAIL = #{VALUE}
+	</select>
+
+
+
+	<select id="RgetTotalRow" parameterType="java.util.HashMap" resultType="Integer">
+		SELECT COUNT(R.ROOMNO)
+		FROM
+		SROOMINFO R , SRINFO I, ROOMDATE D , SROPTION S
+		WHERE
+		R.ROOMNO=I.ROOMNO AND R.ROOMNO = D.ROOMNO AND S.ROOMNO=R.ROOMNO
+		AND D.CHECKOUTDATE >= SYSDATE
+		
+
+		<if test="sido !='모두' ">
+			AND R.RLOCATION LIKE '%'||#{sido}||'%'
+		</if>
+
+		<if test="googoon != '모두' ">
+			AND R.RLOCATION LIKE '%'||#{googoon}||'%'
+		</if>
+
+		<if test="inwon != '모두' ">
+			AND I.RCOUNT >= #{inwon}
+		</if>
+		<if test="date != '' ">
+			AND #{date}  >= D.CHECKINDATE
+			AND D.CHECKOUTDATE > #{date}
+		</if>
+		<if test="aclass !=null">
+			<foreach collection="aclass" item="a" separator=",">
+				AND S.ACLASS LIKE '%'||#{a}||'%'
+			</foreach>
+		</if>
+		<if test="bclass !=null">
+			<foreach collection="bclass" item="a" separator=",">
+				AND S.BCLASS LIKE '%'||#{a}||'%'
+			</foreach>
+		</if>
+		<if test="cclass !=null">
+			<foreach collection="cclass" item="a" separator=",">
+				AND S.CCLASS LIKE '%'||#{a}||'%'
+			</foreach>
+		</if>
+		<if test="dclass !=null">
+			<foreach collection="dclass" item="a" separator=",">
+				AND S.DCLASS LIKE '%'||#{a}||'%'
+			</foreach>
+		</if>
+		<if test="eclass !=null">
+			<foreach collection="eclass" item="a" separator=",">
+				AND S.ECLASS LIKE '%'||#{a}||'%'
+			</foreach>
+		</if>
+
+
+	</select>
+
+	<select id="RselectBoard" parameterType="java.util.HashMap" resultType="room">
+		SELECT ROOMNO,USERNO,RTITLE,RIMAGE,RMEMO,RPRICE,
+		RLOCATION,RRANKING,RDATE,RCOUNT,CHECKINDATE,CHECKOUTDATE
+		FROM(
+		SELECT ROWNUM
+		RM,ROOMNO,USERNO,RTITLE,RIMAGE,RMEMO,
+		RPRICE,RLOCATION,RRANKING,RDATE,RCOUNT,CHECKINDATE,CHECKOUTDATE
+		FROM(
+		SELECT
+		R.ROOMNO,R.USERNO,R.RTITLE,R.RIMAGE,R.RMEMO,
+		R.RPRICE,R.RLOCATION,R.RRANKING,R.RDATE,I.RCOUNT,D.CHECKINDATE,D.CHECKOUTDATE
+		FROM SROOMINFO R,ROOMDATE D,SRINFO I,SROPTION S
+		WHERE
+		R.ROOMNO = I.ROOMNO AND D.ROOMNO=R.ROOMNO AND S.ROOMNO=R.ROOMNO
+		AND D.CHECKOUTDATE >= SYSDATE
+		<if test="sido != '모두' ">
+			AND R.RLOCATION LIKE '%'||#{sido}||'%'
+		</if>
+		<if test="googoon != '모두' ">
+			AND R.RLOCATION LIKE '%'||#{googoon}||'%'
+		</if>
+		<if test="inwon != '모두' ">
+			AND I.RCOUNT >= #{inwon}
+		</if>
+		<if test="date != '' ">
+			AND #{date}  >= D.CHECKINDATE
+			AND D.CHECKOUTDATE >= #{date}
+		</if>
+		<if test="aclass !=null">
+			<foreach collection="aclass" item="a" separator=",">
+				AND S.ACLASS LIKE '%'||#{a}||'%'
+			</foreach>
+		</if>
+		<if test="bclass !=null">
+			<foreach collection="bclass" item="b" separator=",">
+				AND S.BCLASS LIKE '%'||#{b}||'%'
+			</foreach>
+		</if>
+		<if test="cclass !=null">
+			<foreach collection="cclass" item="c" separator=",">
+				AND S.CCLASS LIKE '%'||#{c}||'%'
+			</foreach>
+		</if>
+		<if test="dclass !=null">
+			<foreach collection="dclass" item="d" separator=",">
+				AND S.DCLASS LIKE '%'||#{d}||'%'
+			</foreach>
+		</if>
+		<if test="eclass !=null">
+			<foreach collection="eclass" item="e" separator=",">
+				AND S.ECLASS LIKE '%'||#{e}||'%'
+			</foreach>
+		</if>
+		ORDER BY ROOMNO DESC ))
+		WHERE
+		RM BETWEEN #{start} AND #{end}
+
+	</select>
+	
+	<select id="RselectBoardInfo" parameterType="Integer"
+		resultType="info">
+	    
+		SELECT U.NAME,R.RTITLE,R.RIMAGE,R.RMEMO,R.RLOCATION,R.RRANKING,R.RPRICE,I.RCOUNT,I.BADROOM,
+		I.TOILET,I.CHECKIN,I.CHECKOUT,I.ROOMTYPE,	O.ACLASS,O.BCLASS,O.CCLASS,O.DCLASS,O.ECLASS
+		FROM SROOMINFO R ,SRINFO I,	SROPTION O, SUSER U
+		WHERE R.ROOMNO=#{value} AND U.USERNO=R.USERNO AND R.ROOMNO=I.ROOMNO AND R.ROOMNO=O.ROOMNO
+	</select>
+
+
+	<!-- </mapper> S : BOARD BOARD가 커뮤니티 글 DB이름 / REPLYBOARD : 덧글 DB이름 <mapper 
+		namespace="big.model.BoardBean"> -->
+	<resultMap type="bbs" id="selectInfoID">
+
+		<result property="no" column="no" javaType="Integer" />
+		<result property="writer" column="writer" javaType="String" />
+		<result property="title" column="title" javaType="String" />
+		<result property="pass" column="pass" javaType="String" />
+		<result property="contents" column="contents" javaType="String" />
+		<result property="regdate" column="RG" jdbcType="DATE" />
+		<result property="fileName" column="fileName" javaType="String" />
+		<result property="hit" column="hit" javaType="Integer" />
+		<result property="ref" column="ref" javaType="Integer" />
+		<result property="step" column="step" javaType="Integer" />
+		<result property="lev" column="lev" javaType="Integer" />
+		<result property="pnum" column="pnum" javaType="Integer" />
+		<result property="reply" column="reply" javaType="Integer" />
+
+	</resultMap>
+	<select id="selectSequence" resultType="Integer">
+		SELECT
+		REPLYBOARD_SEQ.NEXTVAL FROM DUAL
+	</select>
+	<select id="selectBoardInfo" parameterType="Integer" resultType="bbs"
+		resultMap="selectInfoID">
+		SELECT
+		NO,WRITER,TITLE,PASS,CONTENTS,TO_CHAR(REGDATE,'YYYY/MM/DD')RG,
+		FILENAME,HIT,REF,STEP,LEV,PNUM,REPLY
+		FROM BOARD
+		WHERE NO=#{VALUE}
+	</select>
+
+	<select id="getPass" resultType="String" parameterType="Integer">
+		SELECT
+		PASS FROM BOARD WHERE NO=#{VALUE}
+	</select>
+	<delete id="deleteBoard" parameterType="Integer">
+		DELETE FROM BOARD WHERE
+		NO=#{VALUE}
+	</delete>
+	<update id="updateBoard" parameterType="bbs">
+		UPDATE BOARD SET
+		TITLE=#{title},
+		WRITER=#{writer},PASS=#{pass},CONTENTS=#{contents},FILENAME=#{fileName}
+		WHERE NO=#{no}
+	</update>
+
+	<select id="getSequence" resultType="Integer">
+		SELECT BOARD_SEQ.NEXTVAL
+		FROM DUAL
+	</select>
+
+	<!-- parameterType : # Map : ? -->
+	<select id="selectBoard" parameterType="java.util.HashMap"
+		resultType="bbs">
+		SELECT RM,NO,WRITER,TITLE,PASS,CONTENTS,
+		TO_CHAR(REGDATE,'YYYY-MM-DD')REGDATE, FILENAME,HIT,REF,STEP,
+		LEV,PNUM,REPLY FROM( SELECT ROWNUM RM,NO,WRITER,TITLE,PASS,CONTENTS,
+		REGDATE,
+		FILENAME,HIT,REF,STEP,LEV,PNUM,REPLY
+		FROM( SELECT
+		NO,WRITER,TITLE,PASS,CONTENTS,
+		REGDATE, FILENAME,HIT,REF,STEP,
+		LEV,PNUM,REPLY 
+		FROM BOARD
+		<if test="query!=null">
+		WHERE ${query} LIKE '%'||#{search}||'%'
+		</if> 
+		ORDER BY REF DESC ,STEP ASC,LEV ASC))
+		WHERE RM
+		BETWEEN #{start} AND #{end}
+	</select>
+	<select id="getTotalRow" resultType="Integer">
+		SELECT COUNT(*) FROM BOARD
+		<if test="query!=null">
+		WHERE ${query} LIKE '%'||#{search}||'%'
+		</if> 
+	</select>
+	<update id="updateStep" parameterType="java.util.HashMap">
+		UPDATE BOARD SET
+		STEP=STEP+1
+		WHERE REF=#{ref} AND STEP>#{step}
+	</update>
+	<update id="updateReply" parameterType="java.util.HashMap">
+		UPDATE BOARD SET
+		<choose>
+			<when test="job=='reply'">
+				REPLY=REPLY+1
+			</when>
+			<otherwise>
+				REPLY=REPLY-1
+			</otherwise>
+		</choose>
+		WHERE NO=#{pnum}
+
+	</update>
+	<update id="updateHit" parameterType="Integer">
+		UPDATE BOARD SET HIT=HIT+1
+		WHERE NO=#{VALUE}
+	</update>
+	<insert id="insertBoard" parameterType="bbs">
+		INSERT INTO BOARD
+		VALUES(#{no},#{writer},#{title},#{pass},#{contents},SYSDATE,#{fileName},0,#{ref},#{step},#{lev},#{pnum},0)
+	</insert>
+	<!-- no writer title pass contents regdate fileName hit ref step lev pnum 
+		reply -->
+	<insert id="replyAdd" parameterType="reply">
+		INSERT INTO REPLYBOARD
+		VALUES(#{no},#{id},#{contents},
+		#{ref},#{step},#{pnum},#{infoPk},0,SYSDATE)
+	</insert>
+	<select id="selectRePly" parameterType="Integer" resultType="reply">
+		SELECT R1.NO,R1.ID,R1.CONTENTS,R1.REF,R1.PNUM,R1.INFOPK,R1.REPLY,
+		R1.REGDATE,R2.ID PNUMID
+		FROM REPLYBOARD R1, REPLYBOARD R2
+		WHERE
+		R1.PNUM=R2.NO AND
+		R1.INFOPK=#{VALUE}
+		ORDER BY R1.REF DESC,R1.PNUM
+		ASC,R1.NO ASC
+	</select>
+
+	<!-- E : BOARD -->
+	<select id="addrSido" resultType="String">
+		SELECT SIDO FROM ADDRESS GROUP
+		BY SIDO
+	</select>
+	<select id="addrGogun" resultType="String">
+		SELECT GOGUN FROM ADDRESS
+		GROUP BY GOGUN
+	</select>
+
+	<!--S: Admin -->
+
+
+	<select id="AdminselectUser" resultType="user" parameterType="java.util.HashMap">
+		SELECT USERNO,NAME,PASSWORD,GENDER,PHONE,REGDATE,POWER,BIRTH,EMAIL
+		FROM(
+		SELECT ROWNUM
+		RM,USERNO,NAME,PASSWORD,GENDER,PHONE,REGDATE,POWER,BIRTH,EMAIL
+		FROM(SELECT
+		USERNO,NAME,PASSWORD,GENDER,PHONE,REGDATE,POWER,BIRTH,EMAIL 
+		FROM SUSER
+		<if test="query!=null">
+		WHERE ${query} LIKE '%'||#{search}||'%'
+		</if>
+		ORDER BY USERNO ASC))
+		WHERE RM BETWEEN
+		#{start} AND #{end}
+
+
+	</select>
+	<select id="getTotalRowUser" resultType="Integer">
+		SELECT COUNT(*) FROM SUSER
+		<if test="query!=null">
+		WHERE ${query} LIKE '%'||#{search}||'%'
+		</if> 
+	</select>
+
+
+	<delete id="AdmindeleteUser" parameterType="Integer">
+		DELETE FROM SUSER
+		WHERE
+		USERNO=#{VALUE}
+	</delete>
+	<select id="selectUserInfo" parameterType="Integer" resultType="user">
+		SELECT USERNO,NAME,PASSWORD,GENDER,PHONE,REGDATE,POWER,BIRTH,EMAIL
+		FROM SUSER
+		WHERE USERNO=#{VALUE}
+	</select>
+	<update id="updateUser" parameterType="user">
+		UPDATE SUSER SET
+		NAME=#{name},EMAIL=#{email},PASSWORD=#{password},GENDER=#{gender},PHONE=#{phone},POWER=#{power},BIRTH=#{birth}
+		WHERE USERNO=#{userno}
+	</update>
+	<!-- <select id="AdminselectBoard" resultType="bbs"> SELECT NO,WRITER,TITLE,PASS,CONTENTS,REGDATE,FILENAME,HIT 
+		FROM BOARD ORDER BY NO ASC </select> -->
+	<select id="AdminselectRoom" resultType="room" parameterType="java.util.HashMap">
+		SELECT
+		ROOMNO,USERNO,RTITLE,RIMAGE,RMEMO,RPRICE,RLOCATION,RRANKING,RDATE, confirm
+		FROM(
+		SELECT ROWNUM RM,
+		ROOMNO,USERNO,RTITLE,RIMAGE,RMEMO,RPRICE,RLOCATION,RRANKING,RDATE, confirm
+		FROM(SELECT
+		ROOMNO,USERNO,RTITLE,RIMAGE,RMEMO,RPRICE,RLOCATION,RRANKING,RDATE,RCONFIRM confirm
+		FROM SROOMINFO 
+		<if test="query!=null">
+		WHERE ${query} LIKE '%'||#{search}||'%'
+		</if>
+		ORDER BY ROOMNO ASC))
+		WHERE RM BETWEEN
+		#{start} AND #{end}
+	</select>
+
+
+
+	<delete id="AdmindeleteRoom" parameterType="Integer">
+		DELETE FROM SROOMINFO
+		WHERE
+		ROOMNO=#{VALUE}
+	</delete>
+	<select id="getTotalRowRoom" resultType="Integer">
+		SELECT COUNT(*) FROM
+		SROOMINFO
+		<if test="query!=null">
+		WHERE ${query} LIKE '%'||#{search}||'%'
+		</if>
+	</select>
+
+
+
+	<!--E: Admin -->
+	<insert id="insertwish" parameterType="HashMap">
+		<selectKey keyProperty="pk" order="BEFORE" resultType="Integer">
+			SELECT SWISH_SEQ.NEXTVAL FROM DUAL
+		</selectKey>
+		INSERT INTO SWISH
+		VALUES(#{pk},#{USERNO},#{ROOMNO})
+
+	</insert>
+
+	<!-- 호스팅~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  -->
+	<select id="addRoomno" resultType="Integer">
+		SELECT SROOMINFO_SEQ.NEXTVAL FROM
+		DUAL
+	</select>
+	<select id="addSrno" resultType="Integer">
+		SELECT SRINFO_SEQ.NEXTVAL FROM
+		DUAL
+	</select>
+	<select id="addRdno" resultType="Integer">
+		SELECT ROOMDATE_SEQ.NEXTVAL FROM
+		DUAL
+	</select>
+	<select id="addOptionno" resultType="Integer">
+		SELECT SROPTION_SEQ.NEXTVAL FROM
+		DUAL
+	</select>
+	
+	<insert id="insertSroominfo" parameterType="room">
+		INSERT INTO SROOMINFO
+		VALUES(#{roomno},#{userno},#{rtitle},#{rimage},#{rmemo},#{rprice},#{rlocation},#{rranking},SYSDATE,#{confirm})
+	</insert>
+	<insert id="insertSrinfo" parameterType="rinfo">
+		INSERT INTO SRINFO
+		VALUES(#{srno},#{rcount},#{toilet},#{badroom},#{checkin},#{checkout},#{roomtype},#{roomno})
+	</insert>
+	<insert id="insertRoomdate" parameterType="rdate">
+		INSERT INTO ROOMDATE
+		VALUES(#{rdno},#{roomno},#{checkindate},#{checkoutdate})
+	</insert>
+	<insert id="insertSroption" parameterType="option">
+		INSERT INTO SROPTION
+		VALUES(#{optionno},#{aclass},#{bclass},#{cclass},#{dclass},#{eclass},#{roomno})
+	</insert>
+
+	<select id="selectwish" resultType="room" parameterType="Integer">
+		SELECT
+		S.WISHNO ,R.ROOMNO ROOMNO,R.USERNO USERNO,RTITLE,RIMAGE,RMEMO,RPRICE,RLOCATION,RRANKING,RDATE
+		FROM SWISH S,SROOMINFO R
+		WHERE S.ROOMNO=R.ROOMNO AND S.USERNO=#{VALUE}
+		</select>
+	<delete id="deletewish" parameterType="Integer">
+		DELETE FROM SWISH
+		WHERE 
+		WISHNO=#{VALUE}
+	</delete>
+
+	
+	<select id="addReserve" resultType="Integer">
+		SELECT ROOMRESERVE_SEQ.NEXTVAL FROM
+		DUAL
+	</select>
+	
+	<insert id="insertReservation" parameterType="reservation">
+	    INSERT INTO ROOMRESERVE
+	    VALUES(#{reno},#{rememo},#{recheckin},#{repay},SYSDATE,#{roomno},#{userno},#{recheckout},#{paymethod},#{paynumber},#{mangi},#{money})
+	</insert>
+
+</mapper>
+
+
+
+
+
